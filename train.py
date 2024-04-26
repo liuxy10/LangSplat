@@ -22,6 +22,8 @@ from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
+import cv2
+import numpy as np
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
@@ -95,7 +97,13 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         # Loss
         if opt.include_feature:
             gt_language_feature, language_feature_mask = viewpoint_cam.get_language_feature(language_feature_dir=dataset.lf_path, feature_level=dataset.feature_level)
-            Ll1 = l1_loss(language_feature*language_feature_mask, gt_language_feature*language_feature_mask)            
+            Ll1 = l1_loss(language_feature*language_feature_mask, gt_language_feature*language_feature_mask)    
+            # im = (255*(gt_language_feature*language_feature_mask).detach().cpu().numpy()).astype(np.uint8)
+            # im = np.transpose(im, (1, 2, 0))
+            # print(" !"*10, np.max(im), torch.max(language_feature), torch.max(language_feature_mask))
+            # cv2.imshow("a",im)
+            # cv2.waitKey(5000)
+            # exit(0)
             loss = Ll1
         else:
             gt_image = viewpoint_cam.original_image.cuda()
@@ -150,6 +158,8 @@ def prepare_output_and_logger(args):
         args.model_path = os.path.join("./output/", unique_str[0:10])
         
     # Set up output folder
+    # print(args.model_path, "*"*30)
+    # exit(0)
     print("Output folder: {}".format(args.model_path))
     os.makedirs(args.model_path, exist_ok = True)
     with open(os.path.join(args.model_path, "cfg_args"), 'w') as cfg_log_f:
@@ -218,10 +228,24 @@ if __name__ == "__main__":
     parser.add_argument("--start_checkpoint", type=str, default = None)
     args = parser.parse_args(sys.argv[1:])
     args.save_iterations.append(args.iterations)
-    print(args)
+    
+
+
+    #### debug purpose #############
+
+
+    # args.source_path = "sofa"
+    # args.model_path = "sofa/sofa_1"
+    # # args.feature_level = 0
+    # args.start_checkpoint = "sofa/sofa_1/chkpnt30000.pth"
+    # args.include_feature = True
+    args.quiet = False
+    args.iterations = 60000
+
+    ##############################
     args.model_path = args.model_path + f"_{str(args.feature_level)}"
     print("Optimizing " + args.model_path)
-
+    print(args)
     # Initialize system state (RNG)
     safe_state(args.quiet)
 

@@ -79,7 +79,11 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
             sh2rgb = eval_sh(pc.active_sh_degree, shs_view, dir_pp_normalized)
             colors_precomp = torch.clamp_min(sh2rgb + 0.5, 0.0)
         else:
+            # print("render goes there")
+            # exit(0)
             shs = pc.get_features
+            print(shs.shape, "*"*30)
+            exit(0)
     else:
         colors_precomp = override_color
 

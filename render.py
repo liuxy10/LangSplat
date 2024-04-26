@@ -63,10 +63,10 @@ def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParam
         background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
 
         if not skip_train:
-             render_set(dataset.model_path, dataset.source_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipeline, background, args)
+            render_set(dataset.model_path, dataset.source_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipeline, background, args)
 
         if not skip_test:
-             render_set(dataset.model_path, dataset.source_path, "test", scene.loaded_iter, scene.getTestCameras(), gaussians, pipeline, background, args)
+            render_set(dataset.model_path, dataset.source_path, "test", scene.loaded_iter, scene.getTestCameras(), gaussians, pipeline, background, args)
 
 if __name__ == "__main__":
     # Set up command line argument parser
@@ -74,13 +74,26 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="Testing script parameters")
     model = ModelParams(parser, sentinel=True)
     pipeline = PipelineParams(parser)
+    
+
     parser.add_argument("--iteration", default=-1, type=int)
     parser.add_argument("--skip_train", action="store_true")
     parser.add_argument("--skip_test", action="store_true")
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--include_feature", action="store_true")
 
+    ## debug purpose: 
+    # parser.add_argument("--model_path", default = "/home/sarah/LangSplat/sofa/sofa_1")
+    # parser.add_argument("--include_feature",  action="store_true")
+
     args = get_combined_args(parser)
+    args.include_feature = True
+    args.model_path = "/home/sarah/LangSplat/sofa/sofa_1"
+
+
+
+
+
     print("Rendering " + args.model_path)
 
     safe_state(args.quiet)

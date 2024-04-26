@@ -2,9 +2,9 @@
 CASE_NAME="teatime"
 
 # path to lerf_ovs/label
-gt_folder="../data/lerf_ovs/label"
+gt_folder="~/lerf_ovs/label"
 
-root_path="../"
+root_path="~/LangSplat/"
 
 python evaluate_iou_loc.py \
         --dataset_name ${CASE_NAME} \

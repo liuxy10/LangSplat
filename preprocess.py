@@ -31,6 +31,20 @@ class OpenCLIPNetworkConfig:
     negatives: Tuple[str] = ("object", "things", "stuff", "texture")
     positives: Tuple[str] = ("",)
 
+class OpenCLIPNetworkSofaConfig:
+    _target: Type = field(default_factory=lambda: OpenCLIPNetwork)
+    clip_model_type: str = "ViT-B-16"
+    clip_model_pretrained: str = "laion2b_s34b_b88k"
+    clip_n_dims: int = 512
+    negatives: Tuple[str] = ("",)
+    positives: Tuple[str] = ("switch", "Nintendo", "red", "controller", 
+             "UNO", "card", "stack"
+             "sofa","grey",
+             "Gundam", 
+             "Pikachu", 
+             "Xbox", "wireless")
+
+
 class OpenCLIPNetwork(nn.Module):
     def __init__(self, config: OpenCLIPNetworkConfig):
         super().__init__()
@@ -91,6 +105,8 @@ class OpenCLIPNetwork(nn.Module):
 
     def get_relevancy(self, embed: torch.Tensor, positive_id: int) -> torch.Tensor:
         phrases_embeds = torch.cat([self.pos_embeds, self.neg_embeds], dim=0)
+        print(phrases_embeds.shape)
+        # exit(0)
         p = phrases_embeds.to(embed.dtype)  # phrases x 512
         output = torch.mm(embed, p.T)  # rays x phrases
         positive_vals = output[..., positive_id : positive_id + 1]  # rays x 1
@@ -348,7 +364,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_path', type=str, required=True)
     parser.add_argument('--resolution', type=int, default=-1)
-    parser.add_argument('--sam_ckpt_path', type=str, default="ckpts/sam_vit_h_4b8939.pth")
+    parser.add_argument('--sam_ckpt_path', type=str, default="/home/sarah/LangSplat/ckpt/sam_vit_h_4b8939.pth")
     args = parser.parse_args()
     torch.set_default_dtype(torch.float32)
 
@@ -401,4 +417,5 @@ if __name__ == '__main__':
 
     save_folder = os.path.join(dataset_path, 'language_features')
     os.makedirs(save_folder, exist_ok=True)
+    
     create(imgs, data_list, save_folder)
